@@ -40,7 +40,7 @@ contract WaveFormsNFT is ERC721Z, Ownable {
     address public treasuryAddress;
     address public managerAddress;
 
-    event PrivateSaleMinted(address indexed to, uint256 tokenQuantity, uint256 amountTransfered);
+    event PrivateSaleMinted(address indexed to, uint256 tokenQuantity);
     event PreSaleMinted(address indexed to, uint256 tokenQuantity, uint256 amountTransfered);
     event PublicSaleMinted(address indexed to, uint256 tokenQuantity, uint256 amountTransfered);
     event TeamClaimMinted(address indexed to, uint256 tokenQuantity);
@@ -101,8 +101,23 @@ contract WaveFormsNFT is ERC721Z, Ownable {
 		_;
 	}
 
+    function privateSaleMint(uint256 tokenQuantity, bytes calldata signature) public mintPerTxtNotExceed(tokenQuantity) mintPerAddressNotExceed(tokenQuantity) {
+        require(privateSaleLive && !preSaleLive && !publicSaleLive, "Private-Sale Closed"); // Private-Sale should be active
+        require((privateSaleMinted + tokenQuantity) <= PRIVATE_SALE_MAX, "Private-Sale Quota will Exceed"); // Total Private-Sale minted should not exceed Max Pre-Sale allocated
+        require(totalSupply() + tokenQuantity <= MAX_SUPPLY, "Minting would exceed max supply"); // Total Minted should not exceed Max Supply
+        
+        bytes32 msgHash = keccak256(abi.encodePacked(msg.sender));
+        bytes32 signedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", msgHash));
+        require(owner() == signedHash.recover(signature), "Signer address mismatch.");
+
+        _safeMint(msg.sender, tokenQuantity);
+        privateSaleMinted+=tokenQuantity;
+
+        emit PrivateSaleMinted(msg.sender, tokenQuantity);
+    }
+
     function preSaleMint(uint256 tokenQuantity, bytes calldata signature) public payable mintPerTxtNotExceed(tokenQuantity) mintPerAddressNotExceed(tokenQuantity) {
-        require(preSaleLive && !publicSaleLive, "Pre-Sale Closed"); // Pre-Sale should be active
+        require(preSaleLive && !privateSaleLive && !publicSaleLive, "Pre-Sale Closed"); // Pre-Sale should be active
         require((preSaleMinted + tokenQuantity) <= PRESALE_MAX, "Pre-Sale Quota will Exceed"); // Total Pre-Sale minted should not exceed Max Pre-Sale allocated
         require(totalSupply() + tokenQuantity <= MAX_SUPPLY, "Minting would exceed max supply"); // Total Minted should not exceed Max Supply
         require((price * tokenQuantity) == msg.value, "Insufficient Funds Sent" ); // Amount sent should be equal to price to quantity being minted
@@ -118,9 +133,9 @@ contract WaveFormsNFT is ERC721Z, Ownable {
     }
 
     function mint(uint256 tokenQuantity) public payable mintPerTxtNotExceed(tokenQuantity) mintPerAddressNotExceed(tokenQuantity) {
-        require(publicSaleLive, "Public Sale Closed"); // Public Sale Should be active
+        require(publicSaleLive && !preSaleLive && !privateSaleLive, "Public Sale Closed"); // Public Sale Should be active
+        require(totalSupply() + tokenQuantity <= (MAX_SUPPLY - TEAM_CLAIM_MAX - TREASURY_MAX), "Quota will Exceed"); // Total  minted hould not exceed Max allocated
         require(totalSupply() < MAX_SUPPLY, "All tokens have been minted");
-        require(totalSupply() + tokenQuantity <= MAX_SUPPLY, "Minting would exceed max supply"); // Total Minted should not exceed Max Supply
         require((price * tokenQuantity) == msg.value, "Insufficient Funds Sent" ); // Amount sent should be equal to price to quantity being minted
 
         _safeMint(msg.sender, tokenQuantity);
