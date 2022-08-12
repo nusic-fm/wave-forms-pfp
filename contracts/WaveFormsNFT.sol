@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import './ERC721Z.sol';
 
-contract WaveFormsNFT is ERC721Z, Ownable {
+contract WaveFormsNFT is ERC721Z {
     using Strings for uint256;
     using ECDSA for bytes32;
 
