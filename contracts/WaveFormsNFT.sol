@@ -172,4 +172,13 @@ contract WaveFormsNFT is ERC721Z {
         emit TreasuryMinted(treasuryAddress, tokenQuantity);
     }
 
+    function _beforeTokenTransfers(
+        address from,
+        address to,
+        uint256 startTokenId,
+        uint256 quantity
+    ) internal override {
+        //TODO: Implementation to call pausable
+    }
+
 }
