@@ -8,7 +8,6 @@ contract ERC721Z is ERC721A, Ownable {
     
     mapping(address => bool) internal frozenAddresses;
     mapping(uint256 => bool) internal frozenTokens;
-    
 
     event TokensFrozen(uint256 indexed _tokenId);
     event TokensUnfrozen(uint256 indexed _tokenId);
@@ -33,9 +32,32 @@ contract ERC721Z is ERC721A, Ownable {
         }
     }
 
+    function forcedTransfer(
+        address _from,
+        address _to,
+        uint256 _tokenId
+    ) public virtual onlyOwner returns (bool) {
+        bool tokenFrozen = frozenTokens[_tokenId];
+        if (tokenFrozen) {
+            frozenTokens[_tokenId] = false;
+            emit TokensUnfrozen(_tokenId);
+            transferFrom(_from, _to, _tokenId);
+            return true;
+        }
+        revert('Transfer not possible');
+    }
+
     function setAddressFrozen(address _userAddress, bool _freeze) public virtual onlyOwner {
         frozenAddresses[_userAddress] = _freeze;
         emit AddressFrozen(_userAddress, _freeze, msg.sender);
     }
 
+    function isFrozenAddress(address _userAddress) external view virtual returns (bool) {
+        return frozenAddresses[_userAddress];
+    }
+
+    function isFrozenToken(uint256 _tokenId) external view virtual returns (bool) {
+        return frozenTokens[_tokenId];
+    }
+    
 }
