@@ -106,10 +106,10 @@ contract WaveFormsNFT is ERC721Z {
         require((privateSaleMinted + tokenQuantity) <= PRIVATE_SALE_MAX, "Private-Sale Quota will Exceed"); // Total Private-Sale minted should not exceed Max Pre-Sale allocated
         require(totalSupply() + tokenQuantity <= MAX_SUPPLY, "Minting would exceed max supply"); // Total Minted should not exceed Max Supply
         
-        bytes32 msgHash = keccak256(abi.encodePacked(msg.sender));
+        bytes32 msgHash = keccak256(abi.encodePacked(msg.sender, tokenQuantity));
         bytes32 signedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", msgHash));
         require(owner() == signedHash.recover(signature), "Signer address mismatch.");
-
+        require(balanceOf(msg.sender) == 0, 'Will Exceed Allowed limit');
         _safeMint(msg.sender, tokenQuantity);
         privateSaleMinted+=tokenQuantity;
 
@@ -148,10 +148,10 @@ contract WaveFormsNFT is ERC721Z {
         require((teamClaimMinted + tokenQuantity) <= TEAM_CLAIM_MAX, "Team Quota will Exceed"); // Total Private-Sale minted should not exceed Max Pre-Sale allocated
         require(totalSupply() + tokenQuantity <= MAX_SUPPLY, "Minting would exceed max supply"); // Total Minted should not exceed Max Supply
         
-        bytes32 msgHash = keccak256(abi.encodePacked(msg.sender));
+        bytes32 msgHash = keccak256(abi.encodePacked(msg.sender, tokenQuantity));
         bytes32 signedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", msgHash));
         require(owner() == signedHash.recover(signature), "Signer address mismatch.");
-
+        require(balanceOf(msg.sender) == 0, 'Will Exceed Allowed limit');
         _safeMint(msg.sender, tokenQuantity);
         teamClaimMinted+=tokenQuantity;
 
