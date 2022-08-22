@@ -101,7 +101,7 @@ contract WaveFormsNFT is ERC721Z {
 		_;
 	}
 
-    function privateSaleMint(uint256 tokenQuantity, bytes calldata signature) public mintPerTxtNotExceed(tokenQuantity) mintPerAddressNotExceed(tokenQuantity) {
+    function privateSaleMint(uint256 tokenQuantity, bytes calldata signature) public {
         require(privateSaleLive && !preSaleLive && !publicSaleLive, "Private-Sale Closed"); // Private-Sale should be active
         require((privateSaleMinted + tokenQuantity) <= PRIVATE_SALE_MAX, "Private-Sale Quota will Exceed"); // Total Private-Sale minted should not exceed Max Pre-Sale allocated
         require(totalSupply() + tokenQuantity <= MAX_SUPPLY, "Minting would exceed max supply"); // Total Minted should not exceed Max Supply

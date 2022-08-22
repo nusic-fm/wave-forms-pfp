@@ -65,4 +65,41 @@ describe("Nusic Wave Forms NFT Deployed: Before any Sales round started", functi
     await expect((waveFormsNFT.connect(addr1).toggleReveal())).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
+  it("Treasury Minting should be failed by non-owner account", async function () {
+    const [owner,addr1] = await ethers.getSigners();
+    //expect(await waveFormsNFT.connect(addr1).treasuryMint(5)).to.be.ok;
+    await expect((waveFormsNFT.connect(addr1).treasuryMint(5))).to.be.revertedWith("Ownable: caller is not the owner");
+  });
+
+  it("Treasury Minting 5 tokens should be successful by owner account", async function () {
+    const [owner,addr1] = await ethers.getSigners();
+    expect(await waveFormsNFT.connect(owner).treasuryMint(5)).to.be.ok;
+  });
+
+  it("privateSaleMinted, preSaleMinted, publicSaleMinted and teamClaimMinted should be zero and treasuryMinted should 5", async function () {
+    const [owner,addr1] = await ethers.getSigners();
+    expect((await waveFormsNFT.connect(addr1).privateSaleMinted())).to.be.equal(0);
+    expect((await waveFormsNFT.connect(addr1).preSaleMinted())).to.be.equal(0);
+    expect((await waveFormsNFT.connect(addr1).publicSaleMinted())).to.be.equal(0);
+    expect((await waveFormsNFT.connect(addr1).teamClaimMinted())).to.be.equal(0);
+    expect((await waveFormsNFT.connect(addr1).treasuryMinted())).to.be.equal(5);
+  });
+
+  it("Treasury Minting 500 token should fail -- Quota will Exceed", async function () {
+    const [owner,addr1] = await ethers.getSigners();
+    await expect((waveFormsNFT.connect(owner).treasuryMint(500))).to.be.revertedWith("Treasury Quota will Exceed");
+    //expect(await waveFormsNFT.connect(owner).treasuryMint(500)).to.be.ok;
+  });
+
+  it("Treasury Minting for remaing 495 tokens should be successful by owner account", async function () {
+    const [owner,addr1] = await ethers.getSigners();
+    expect(await waveFormsNFT.connect(owner).treasuryMint(495)).to.be.ok;
+  });
+
+  it("Treasury Minting 1 token after all already minted should be failed by owner", async function () {
+    const [owner,addr1] = await ethers.getSigners();
+    //expect(await waveFormsNFT.connect(addr1).treasuryMint(5)).to.be.ok;
+    await expect((waveFormsNFT.connect(owner).treasuryMint(1))).to.be.revertedWith("Treasury Quota will Exceed");
+  });
+
 });
