@@ -18,7 +18,7 @@ contract WaveFormsNFT is ERC721Z {
 
     uint256 public constant MAX_SUPPLY = 10000;
     uint256 public constant MINT_PER_TXT = 50; // Mint per Transaction
-    uint256 public constant MINT_PER_ADDR = 25; // Mint per Address
+    uint256 public constant MINT_PER_ADDR = 100; // Mint per Address
     
     uint256 public price = 0.08 ether;
 
